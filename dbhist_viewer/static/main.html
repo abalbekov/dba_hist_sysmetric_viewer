@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>DB History Viewer</title>
+		<meta name="description" content="A single webpage application to display Oracle statistics in interactive chart">
+		<meta name="keywords" content="serverless, AWS lambda, AWS API Gateway, Zappa, Python, Flask,
+		                               cx_Oracle, Oracle Instant Client, dyGraph">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/easy-autocomplete@1.3.5/dist/jquery.easy-autocomplete.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/easy-autocomplete@1.3.5/dist/easy-autocomplete.min.css">
+		
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.css">
+		
+		<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="https://cdn.datatables.net/scroller/1.4.3/js/dataTables.scroller.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/scroller/1.4.3/css/scroller.dataTables.min.css">
+		
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		
+		<script src="https://cdn.rawgit.com/vast-engineering/jquery-popup-overlay/1.7.13/jquery.popupoverlay.js"></script>	
+
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
+
+		<link rel="stylesheet" type="text/css" href="/static/style_retina.css"
+		      media="only screen and (max-width: 500px)"
+		/>
+		<!--
+		<link rel="stylesheet" type="text/css" href="/static/style_retina.css"
+		      media="only screen and ( min--moz-device-pixel-ratio: 2),
+			         only screen and ( O-min-device-pixel-ratio: 2/1),
+					 only screen and ( -webkit-min-device-pixel-ratio: 2),
+					 only screen and ( min-device-pixel-ratio: 2)"
+		/>
+		-->
+		
+	</head>
+	<body>
+		<select id="conn_selector"><option></option></select>
+		<select id="rac_instance1"><option></option></select>
+		<div class="outer">
+			<div class="tabs">
+				<ul class="tab-links">
+					<li class="active"><a href="#tab1">Sysmetric</a></li>
+					<li><a href="#tab2">Active Sessions</a></li>
+					<li><a href="#tab3">Tab #3</a></li>
+					<li><a href="#tab4">Tab #4</a></li>
+				</ul>
+				<div class="tab-content">
+					<div id="tab1" class="tab active">
+						<div class="outer">		
+							<form id="form_stats" action="/chart_data" method="post">
+								<select id="chart_stats"><option></option></select>
+							</form>
+							<select id="chart_source">
+								<option value="dba_hist_sysmetric_history">dba_hist_sysmetric_history</option>
+								<option value="dba_hist_sysmetric_summary">dba_hist_sysmetric_summary</option>
+							</select>
+						</div>
+						<div class="chart">
+							<h2>dba_hist_sysmetric_history</h2>
+							<div id="chart_dygraph" style="width:30em; min-width:200px;"></div>
+							<div class="loader"></div>
+						</div>
+						<div class="sqlmonitor">
+							<h2>gv$sqlmonitor</h2>
+							<table class="sqlmonitor_datatable compact hover stripe cell-border"> 
+								<thead>
+									<tr>
+										<th></th>
+										<th>sql_exec_start</th>
+										<th>elapsed_time</th>
+										<th>status</th>
+										<th>sql_id</th>
+										<th>sql_text</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<form class="form_chart_items" method="post"></form>
+					</div>
+			
+					<div id="tab2" class="tab">
+						<p>Under Construction ...</p>
+						<p>Please check back later!</p>
+					</div>
+			
+					<div id="tab3" class="tab">
+						<p>Tab #3 content goes here!</p>
+						<p>Under Construction ...</p>
+						<p>Please check back later!</p>
+					</div>
+			
+					<div id="tab4" class="tab">
+						<p>Tab #4 content goes here!</p>
+						<p>Under Construction ...</p>
+						<p>Please check back later!</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="module" src="/static/javascript.js"></script>
+	</body>
+</html>

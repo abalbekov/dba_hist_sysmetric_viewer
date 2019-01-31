@@ -1,0 +1,230 @@
+html, body {
+	font-family: sans-serif;
+	html, body { font-size: 90%; }   /* Desktop */ 
+}
+
+@media screen and (max-width: 400px) /* Mobile  */ {
+	html, body { font-size: 100%; }
+}
+
+/*-- Popup window --*/
+/*-- 
+.popup-container {
+	position:absolute; 
+	width:100%; 
+	height: 100%;
+	display:flex; 
+	flex-direction: column;
+	justify-content:center; 
+	align-items:center; 
+	z-index: 100;
+}
+.popup_icon {
+	position:relative;
+	top:1.3em;
+	left:0;
+	margin:0;
+	width:80%;
+}
+.fa {
+	background-color: hsl(170,70%, 80%);	
+}
+.popup_content {
+	width:80%; 
+	height: 80%;
+	background-color: yellow;
+	white-space: pre;
+}
+ --*/
+
+/*-- other elements --*/
+#chart_source {
+	font-size: 1em;
+}
+#form_stats {
+	display: inline-block;
+	position:relative;
+}
+form#rac_instance {
+	display: inline-block;
+	position: relative;
+	margin: 3px;
+	margin-left: 2em;
+	border: 1px inset;
+    border-radius:5px;
+	padding: 6px;
+	font-size: 1em;
+}
+
+#chart_stats, #conn_selector, #chart_source, #rac_instance1 {
+	width: 20em;
+}
+/*-- initially hide --*/
+#rac_instance1 {display: none;}
+
+/*-- Chart and Metric legend --*/
+.chart {
+	display: inline-block;
+	position: relative;
+	width: 60%;
+}
+#chart_dygraph {
+	width: 100% !important;
+}
+.chart h2 {
+	margin: 0px;
+	font-size: 1rem;
+	text-align: center;
+	background:hsl(170,70%, 80%);
+}
+
+form.form_chart_items label span {
+	display: inline-block;
+    font-size: 1em;
+	font-weight: bold;
+}
+form.form_chart_items label {
+	display: block;
+}
+
+/*-- Chart titles and labels --*/
+.dygraph-title { 
+	font-size: 1rem; 
+	#text-shadow: gray 1px 1px 1px;
+}
+.dygraph-label.dygraph-xlabel, 
+.dygraph-label.dygraph-ylabel,
+.dygraph-axis-label.dygraph-axis-label-x,
+.dygraph-axis-label.dygraph-axis-label-y,
+.dygraph-legend {
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+/*-- Spinner animation --*/
+/*-- https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_loader --*/
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  border: 6px solid #f3f3f3;
+  border-radius: 50%;
+  /*border-top: 6px solid #3498db;*/
+  border-top: 6px solid hsl(170,100%, 40%);
+  width: 36px;
+  height: 36px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.outer {
+	/*position:relative;*/
+	width=90%;
+	/*--- below is to prevent sqlmonitor div falling to next line on window shrink ---*/
+	white-space:nowrap;
+    overflow:hidden;
+}
+
+/*----- sqlmonitor table -----*/
+.sqlmonitor {
+	display: inline-block;
+	vertical-align: top;
+	position:relative;
+	margin-left: 2em;
+	min-width: 480px;
+	width: 35%;
+	
+}
+.sqlmonitor h2 {
+	margin: 0px;
+	font-size: 1rem; 
+	text-align: center;
+	background:hsl(170,70%, 80%);
+}
+table.dataTable.compact tbody td {
+    padding: 0px 2px !important;
+}
+tr.even:hover, tr.odd:hover {background-color:#c6c6c6 !important}
+
+div.childrow-expand-icon:hover {background-color:#c6c6c6}
+
+/*----- Tabs -----*/
+.tabs {
+    width:100%;
+    display:inline-block;
+	#float:left;
+}
+    /*----- Tab Links -----*/
+    /* Clearfix */
+    .tab-links:after {
+        display:block;
+        clear:both;
+        content:'';
+    }
+ 
+    .tab-links {
+        margin: 0;
+        padding: 0;
+			white-space:nowrap;
+			overflow:hidden;
+    }
+    .tab-links li {
+        #float:left;
+			display:inline-block;
+        list-style:none;
+    }
+ 
+        .tab-links a {
+            padding:5px 15px;
+            display:inline-block;
+            border-radius:5px 5px 0px 0px;
+            background:hsl(170,70%, 80%);
+            font-size:1em;
+            font-weight:100;
+            color: darkCyan;
+            transition:all linear 0.15s;
+            box-shadow:-1px 0px 1px rgba(0,0,0,0.15);
+            text-decoration: none;
+        }
+ 
+        .tab-links a:hover {
+            background:hsl(170, 70%, 50%);
+            text-decoration:none;
+        }
+ 
+    li.active a, li.active a:hover {
+        background:#fff;
+        color:#4c4c4c;
+    }
+ 
+    /*----- Content of Tabs -----*/
+    .tab-content {
+		padding: 0;
+		padding-bottom: 15px;
+        border-radius:0px 3px 3px 3px;
+        box-shadow:-1px 1px 1px rgba(0,0,0,0.15);
+        background:#fff;
+		/*-- to fix height for parent of floated element --*/
+		overflow: auto;
+		width: 100%;
+		/*-- end fix height for parent of floated element --*/
+    }
+ 
+        .tab {
+            display:none;
+        }
+ 
+        .tab.active {
+            display:block;
+        }
