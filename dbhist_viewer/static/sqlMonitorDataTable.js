@@ -6,7 +6,8 @@ import {getDateRange} from "./graph.js"
 export function loadSqlMonData() {
 	$.post(gl.api_root+'/get_sql_monitor_object', 
 		  {conn_name: gl.gDbCredential
-		  ,browzer_tz_name: Intl.DateTimeFormat().resolvedOptions().timeZone},
+		  ,browzer_tz_name: Intl.DateTimeFormat().resolvedOptions().timeZone
+		  },
 		  function(data) {
 			gl.gSqlMonitorData=data;
 			createSqlMonDataTable();
@@ -20,7 +21,7 @@ export function createSqlMonDataTable() {
 	var dataRange=gl.gSqlMonitorData
 				.filter(function(row){
 					//var rowDate=new Date(row[0]);
-					var rowDate=new Date(row.SQL_EXEC_START);
+					var rowDate=new Date(row.SQL_EXEC_START_BROWSER_TZ);
 					return (rowDate > visibleBeginDate 
 							&&
 							rowDate < visibleEndDate)
@@ -43,7 +44,7 @@ export function createSqlMonDataTable() {
 				  }
 				 ,"width":"15px"
 				 }
-				,{ "data": "SQL_EXEC_START" }
+				,{ "data": "SQL_EXEC_START_BROWSER_TZ" }
 				,{ "data": "ELAPSED_TIME"   }
 				,{ "data": "STATUS"         }
 				,{ "data": "SQL_ID"         }
@@ -53,10 +54,9 @@ export function createSqlMonDataTable() {
 			,searching:			false
 			,deferRender:		true
 			,scrollY:			300
-			,scrollX:			false
-			,scroller:			true
-			,paging:			true
-			//,scrollCollapse:	true
+			,scrollX:			true
+			,scroller:			false
+			,paging:			false
 		} 
 	);
 	
@@ -71,7 +71,7 @@ export function createSqlMonDataTable() {
 	$('.sqlmonitor_datatable tbody')
 		.off('mouseenter')
 		.on( 'mouseenter', 'tr.odd, tr.even', function () {
-			var sqlExecStart=gl.gDataTbl.row(this).data()["SQL_EXEC_START"];
+			var sqlExecStart=gl.gDataTbl.row(this).data()["SQL_EXEC_START_BROWSER_TZ"];
 			sqlExecStart=new Date(sqlExecStart).getTime();
 			var elapsedTime=gl.gDataTbl.row(this).data()["ELAPSED_TIME"];
 			gl.dg.updateOptions(
@@ -161,7 +161,7 @@ function formatDataTableChildRow1(rowData, rowIcon){
 					.text(data)
 					.popup('show');
 							
-					// give 100ms for popup to draw before scrolling to the top
+					// give 80ms for popup to draw before scrolling to the top
 		            setTimeout(function() {
 						$txtArea.animate({ scrollTop: 0, scrollLeft: 0 });
 					}, 80);

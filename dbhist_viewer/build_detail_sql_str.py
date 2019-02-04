@@ -1,4 +1,4 @@
-def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_name):
+def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_name, db_os_tz):
     
     # Algorithm to aggregate *Derived metrics over all instances:
     #
@@ -6,7 +6,7 @@ def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_n
     # the formula should be sum(a*b)+sum(c*d) and not sum(a)*sum(b) + sum(c)*sum(d)
     #
     # "*- Derived" metric name is converted to "*Per Txn" metric name
-    # and converted to sum of products of "*Per Txn" by "User Txn Per Sec"
+    # and converted to sum of products of "*Per Txn" and "User Txn Per Sec"
     #
     # 
     str1_list=[]; str2_list=[]; str3_list=[]
@@ -49,7 +49,7 @@ def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_n
     v_sql = """
                 with pivot_data AS (
                 select to_char(round(
-                            cast((from_tz(cast(begin_time as timestamp),DBTIMEZONE) at time zone '{str5}') as date)
+                            cast((from_tz(cast(begin_time as timestamp),'{str6}') at time zone '{str5}') as date)
                             ,'MI'),'YYYY/MM/DD HH24:MI:SS') as begin_time
                     , trunc(value,2) as value
                     , metric_name || ' - instance' || instance_number as metric_name
@@ -57,10 +57,10 @@ def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_n
                 where metric_name in ( {str1} )
                 {str4}
                 and begin_time between 
-                    cast((from_tz(cast(DATE '1970-01-01' as timestamp),'{str5}') at time zone DBTIMEZONE) as date)
+                    cast((from_tz(cast(DATE '1970-01-01' as timestamp),'{str5}') at time zone '{str6}') as date)
                       + ( 1 / 24 / 60 / 60 )/1000 * :1 
                     and 
-                    cast((from_tz(cast(DATE '1970-01-01' as timestamp),'{str5}') at time zone DBTIMEZONE) as date)
+                    cast((from_tz(cast(DATE '1970-01-01' as timestamp),'{str5}') at time zone '{str6}') as date)
                       + ( 1 / 24 / 60 / 60 )/1000 * :2 
                 )
                 select {str2}
@@ -70,7 +70,7 @@ def build_detail_sql(rac_instances, selected_instance, metric_list, browzer_tz_n
                     for metric_name
                     in ( {str3} )
                     )
-                order by begin_time desc""".format(str1=str1_with_in, str2=str2_pivot_select, str3=str3_pivot_in, str4=str4_instance, str5=browzer_tz_name)
+                order by begin_time desc""".format(str1=str1_with_in, str2=str2_pivot_select, str3=str3_pivot_in, str4=str4_instance, str5=browzer_tz_name, str6=db_os_tz)
                
     return v_sql
 

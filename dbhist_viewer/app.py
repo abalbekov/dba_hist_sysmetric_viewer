@@ -15,8 +15,15 @@ app = Flask(__name__, static_url_path='/static')
 conn_dict = {}
 def get_db_connection(conn_name):
     if conn_name not in conn_dict:
-        conn_dict[conn_name] = cx_Oracle.connect(os.environ[conn_name], threaded=True)
-    return conn_dict[conn_name]
+        # save connection and save os db timezone
+        conn = cx_Oracle.connect(os.environ[conn_name], threaded=True)
+        cursor = conn.cursor()
+        cursor.execute("""SELECT TO_CHAR(SYSTIMESTAMP, 'tzr') FROM dual""")
+        db_os_tz = cursor.fetchone()[0]
+        conn_dict[conn_name] = {}
+        conn_dict[conn_name]["conn"] = conn
+        conn_dict[conn_name]["db_os_tz"] = db_os_tz
+    return conn_dict[conn_name]["conn"]
 
 @app.route('/get_credentials')
 def get_credentials():
@@ -41,7 +48,6 @@ def dbms_sqltune_report_sql_monitor():
     v_sql_exec_id   =request.form['sql_exec_id']
 	
     con = get_db_connection(v_conn_name)
-    #con = cx_Oracle.connect(os.environ[v_conn_name])
     if not con:
        return []
        
@@ -200,11 +206,10 @@ def get_sql_monitor_object():
     browzer_tz_name=request.form['browzer_tz_name']
     
     con = get_db_connection(v_conn_name)
-    #con = cx_Oracle.connect(os.environ[v_conn_name])
-    print (con.version)
-    
     if not con:
        return [] #need to return error here and display the error in ajax error handle ..
+    
+    db_os_tz = conn_dict[v_conn_name]["db_os_tz"]
     
     cursor = con.cursor()
     cursor.arraysize = 500
@@ -214,9 +219,11 @@ def get_sql_monitor_object():
     # cx_Oracle will get all columns with select "*" and send it to browser in JSON.
     # Browser's javascript will display all received fields as datatables's child row
     v_sql="""select 
-				cast((from_tz(cast(SQL_EXEC_START as timestamp),DBTIMEZONE) at time zone '{str5}') as date) as SQL_EXEC_START_browser_tz
+				to_char(cast((from_tz(cast(SQL_EXEC_START as timestamp),'{str6}') at time zone '{str5}') as date),'DD-MON-YY HH24:MI:SS') as SQL_EXEC_START_browser_tz
 				,m.* 
-			from gv$sql_monitor m order by sql_exec_start, elapsed_time""".format(str5=browzer_tz_name)
+			from gv$sql_monitor m 
+			where px_qcsid is null
+			order by sql_exec_start, elapsed_time""".format(str6=db_os_tz, str5=browzer_tz_name)
     
     print(v_sql)
     cursor.execute(v_sql)
@@ -288,8 +295,8 @@ def chart_data_detail():
     print("browser_tz_offset_sec :", browser_tz_offset_sec)
     
     con = get_db_connection(v_conn_name)
-    #con = cx_Oracle.connect(os.environ[v_conn_name])
-    print (con.version)
+    
+    db_os_tz = conn_dict[v_conn_name]["db_os_tz"]
        
     cursor = con.cursor()
     cursor.arraysize = 50
@@ -300,7 +307,7 @@ def chart_data_detail():
     v_rac_instances = rec[0]
     print ('v_rac_instances:', v_rac_instances)
 
-    v_sql_str=build_detail_sql(v_rac_instances, v_selected_instance, metric_list,browzer_tz_name)
+    v_sql_str=build_detail_sql(v_rac_instances, v_selected_instance, metric_list,browzer_tz_name,db_os_tz)
 
     print(v_sql_str)
     cursor.execute(v_sql_str, (start_date, end_date) )
@@ -335,8 +342,8 @@ def chart_data_summary():
     browzer_tz_name=post_data_dict['browzer_tz_name']
 
     con = get_db_connection(v_conn_name)
-    #con = cx_Oracle.connect(os.environ[v_conn_name])
-    print (con.version)
+    
+    db_os_tz = conn_dict[v_conn_name]["db_os_tz"]
    
     cursor = con.cursor()
     cursor.arraysize = 50
@@ -349,7 +356,7 @@ def chart_data_summary():
     v_rac_instances = rec[0]
     print ('v_rac_instances:', v_rac_instances)
 
-    v_sql_str=build_summary_sql(v_rac_instances, v_selected_instance, metric_list,browzer_tz_name)
+    v_sql_str=build_summary_sql(v_rac_instances, v_selected_instance, metric_list,browzer_tz_name,db_os_tz)
 
     print(v_sql_str)
     cursor.execute(v_sql_str)
