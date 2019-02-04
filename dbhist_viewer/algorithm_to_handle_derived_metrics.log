@@ -1,0 +1,94 @@
+-- Algorithm to Handle *Derived metrics:
+
+-- Issue:
+   Certain statistics in DBA_HIST_SYSMETRIC_HISTORY and DBA_HIST_SYSMETRIC_SUMMARY do not have
+   "Per Second" metrics but have only "Per Txn" metrics.
+   For example, there are records with "Logical Reads Per Txn"
+   but there are no records with "Logical Reads Per Sec".
+   
+   We will derive "Per Sec" values from "Per Txn" multiplied by "User Txn Per Sec".
+
+-- In below example SQL 
+	"*- Derived" -> converted to "*Per Txn" in two *in* clauses
+				\-> converted to "*Per Txn"*"User Txn Per Sec" in pivot select clause
+
+-- example:
+-- front end requests two metrics:
+	'Logical Reads Per Sec - Derived'
+	and
+	'Redo Generated Per Sec'
+			
+with pivot_data AS (
+select to_char(round(begin_time,'MI'),'YYYY/MM/DD HH24:MI:SS') as begin_time
+     , trunc(value,2) as value
+     , metric_name
+from DBA_HIST_SYSMETRIC_HISTORY
+where metric_name in ( 'Logical Reads Per Txn','Redo Generated Per Sec', 'User Transaction Per Sec')
+					-- *Derived metrics is replaced with *Per Txn metrics
+					-- User Transaction per sec metric added
+and instance_number=1
+and begin_time between sysdate-2 and sysdate
+)
+select begin_time, f1*TPS, f2
+					-- Derived is calculated here
+from pivot_data
+pivot
+     ( sum(value)
+       for metric_name
+       in ( 'Logical Reads Per Txn' as f1,'Redo Generated Per Sec' as f2, 'User Transaction Per Sec' as TPS)
+					-- *Derived metrics is replaced with *Per Txn metrics
+					-- User Transaction per sec metric added
+					-- aliases added
+      )
+order by begin_time desc;
+
+
+select begin_time, trunc(value*val_txn_sec,2) as value
+from (
+	select to_char(begin_time,'YYYY/MM/DD HH24:MI:SS') as begin_time
+		,trunc(value,2) as value
+		, metric_name
+		,lead(value) over (partition by begin_time order by metric_name) as VAL_TXN_SEC
+	from DBA_HIST_SYSMETRIC_HISTORY
+	where metric_name in ( :1, 'User Transaction Per Sec')
+	and instance_number=1
+	and begin_time between sysdate-2 and sysdate
+	order by begin_time desc, metric_name
+) where metric_name = :1
+
+
+-- here is how to aggregate *Derived over all RAC instances
+-- when request also asks some non-derived metrics:
+
+with pivot_data AS (
+select to_char(round(begin_time,'MI'),'YYYY/MM/DD HH24:MI:SS') as begin_time
+     , trunc(value,2) as value
+     , metric_name || ' - instance' || instance_number as metric_name
+from DBA_HIST_SYSMETRIC_HISTORY
+where metric_name in ( 'Logical Reads Per Txn'
+                      ,'Redo Generated Per Sec'
+					  ,'User Transaction Per Sec')
+and begin_time between sysdate-2 and sysdate
+)
+select 
+    -- if all-aggregate:
+	begin_time
+	,f11*TPS1+f12*TPS2 as Derived   -- this aggregates 'Logical Reads Per Sec - Derived'
+	,f21+f22 as non_derived		    -- this aggregates 'Redo Generated Per Sec'
+    -- if all-stacked:
+    --select begin_time,f11*TPS1,f12*TPS2,f21,f22
+	-- if single instance1:
+	--select begin_time,f11*TPS1,f21
+from pivot_data
+pivot
+     ( sum(value)
+       for metric_name
+       in ( 'User Transaction Per Sec - instance1' as TPS1
+	       ,'User Transaction Per Sec - instance2' as TPS2
+		   ,'Logical Reads Per Txn - instance1' as f11,
+           ,'Logical Reads Per Txn - instance2' as f12,
+           ,'Redo Generated Per Sec - instance1' as f21
+           ,'Redo Generated Per Sec - instance2' as f22)
+      )
+order by begin_time desc
+			   
