@@ -3,7 +3,7 @@
 # this will populate summary chart
 # The logic is exactly the same as in build_detail_sql, just different source table
 #--  
-def build_summary_sql(rac_instances, selected_instance, metric_list, browzer_tz_name):
+def build_summary_sql(rac_instances, selected_instance, metric_list, browzer_tz_name,db_os_tz):
     
     # Algorithm to aggregate *Derived metrics over all instances:
     #
@@ -57,7 +57,7 @@ def build_summary_sql(rac_instances, selected_instance, metric_list, browzer_tz_
                     -- round begin_time to closest 10 min
                     to_char(
                         round((
-                            cast((from_tz(cast(begin_time as timestamp),DBTIMEZONE) at time zone '{str5}') as date)
+                            cast((from_tz(cast(begin_time as timestamp),'{str6}') at time zone '{str5}') as date)
                             - trunc(begin_time))*60*24,-1)/(60*24)
                             + trunc(begin_time)
                         ,'YYYY/MM/DD HH24:MI:SS') as begin_time
@@ -74,7 +74,7 @@ def build_summary_sql(rac_instances, selected_instance, metric_list, browzer_tz_
                     for metric_name
                     in ( {str3} )
                     )
-                order by begin_time desc""".format(str1=str1_with_in, str2=str2_pivot_select, str3=str3_pivot_in, str4=str4_instance, str5=browzer_tz_name)
+                order by begin_time desc""".format(str1=str1_with_in, str2=str2_pivot_select, str3=str3_pivot_in, str4=str4_instance, str5=browzer_tz_name, str6=db_os_tz)
                
     return v_sql
 

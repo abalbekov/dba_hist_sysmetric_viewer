@@ -189,8 +189,7 @@ export function getDateRange() {
 // Returns millisec since epoch in browser timezone
 //
 function getDateRangeMs() {
-	var tzOffsetMs=new Date().getTimezoneOffset()*60*1000;
-	//tzOffsetMs=0;
+	//var tzOffsetMs=new Date().getTimezoneOffset()*60*1000;
 	// following https://danielcompton.net/2017/07/06/detect-user-timezone-javascript
 	//tzName=Intl.DateTimeFormat().resolvedOptions().timeZone;
 	
@@ -231,7 +230,8 @@ function getDateRangeMs() {
 		// end date can not be in the future
 		endDate = Math.min(endDate, (new Date()).getTime());
 
-		return [beginDate-tzOffsetMs, endDate-tzOffsetMs];
+		//return [beginDate-tzOffsetMs, endDate-tzOffsetMs];
+		return [beginDate, endDate];
 	}
 }
 	
