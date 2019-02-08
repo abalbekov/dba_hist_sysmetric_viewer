@@ -41,7 +41,10 @@ Javascript code in browser uses several jQuery plugins.
 - Database connection selection dropdown and metrics selection dropdown 
 uses <here> plugin which shortens dropdown selection list as you type.
 This greatly helps with long selection lists which would otherwise require
-lots of scrolling. See screenshot here...
+lots of scrolling. 
+
+	
+![alt text](https://github.com/abalbekov/dba_hist_sysmetric_viewer/blob/master/screenshot3-4.png)
 
 - Charts are built with "dyGraph" object.
 This provides highly performant interactive charts capable of handling 
