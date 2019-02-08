@@ -3,6 +3,18 @@
 This is a single page web application to diplay timeseries data from Oracle's 
 DBA_HIST_SYSMETRIC_HISTORY and DBA_HIST_SYSMETRIC_SUMMARY views.
 
+Example screenshot:
+
+![alt text](https://github.com/abalbekov/dba_hist_sysmetric_viewer/blob/master/screenshot1.png "Oracle Sysmetric History Viewer")
+
+Left side is a scrollable sysmetrics chart.
+
+Right side shows v$sqlmonitor table content with sqlid executions falling within sysmetrics chart window.
+
+A specific sqlid line on the v$sqlmonitor table can be expanded to open a SQLTUNE sqlmonitor report:
+
+![alt text](https://github.com/abalbekov/dba_hist_sysmetric_viewer/blob/master/screenshot2.png)
+
 Application architecture consists of following components:
 
 - Javacript and CSS in client browser
