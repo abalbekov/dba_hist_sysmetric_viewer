@@ -25,7 +25,7 @@ export function emptyGraph() {
 		,{title: "No Metric Selected ..."
 		 ,ylabel: 'Some Units'
 		 //,legend: 'always',
-		 ,dateWindow: [startTime,endTime]
+		 ,dateWindow: [startTime.getTime(),endTime.getTime()]
 		 ,showRangeSelector: true
 		 ,showRoller: true
 		 ,rollPeriod: 10
