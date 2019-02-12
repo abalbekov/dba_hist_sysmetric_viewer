@@ -81,9 +81,9 @@ export function defineChartSrcSel(){
 
 		// and redraw graph
 		gl.dg.updateOptions({
-						 file      : [[newBegin,0],[newEnd,0]]
-						,dateWindow: [newBegin,newEnd]
-						,rollPeriod: newRollPeriod});
+			file      : [[newBegin,0],[newEnd,0]]
+			,dateWindow: [newBegin.getTime(),newEnd.getTime()]
+			,rollPeriod: newRollPeriod});
 		buildGraph();
 		//createSqlMonitorDataTable();
 	});
